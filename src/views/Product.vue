@@ -49,14 +49,14 @@ export default {
 
 
 
-const rootElement = document.getElementById('root')
-ReactDOM.createRoot(rootElement).render(
-  <React.StrictMode>
-    <ChakraProvider theme={theme}>
-      <App />
-    </ChakraProvider>
-  </React.StrictMode>,
-)
+// const rootElement = document.getElementById('root')
+// ReactDOM.createRoot(rootElement).render(
+//   <React.StrictMode>
+//     <ChakraProvider theme={theme}>
+//       <App />
+//     </ChakraProvider>
+//   </React.StrictMode>,
+// )
 
 
 

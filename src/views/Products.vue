@@ -1,5 +1,5 @@
 <template>
-  <div class="body">
+  <!-- <div class="body">
     <div class="header0">
     <div class="header">
     <h1 class="h1h">Shop-OP</h1>
@@ -22,13 +22,42 @@
         </div>
       </div>
     </div>
+  </div> -->
+
+
+
+  <div class="bg-white">
+    <div v-if="fetching">Loading...</div>
+    <div v-else-if="error">Oh no... {{ error }}</div>
+    <!-- <button @click="searchProducts">search</button> -->
+    <div class="max-w-2xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:max-w-7xl lg:px-8">
+      <h2 class="sr-only">Products</h2>
+       <div v-if="data">
+      <div v-for="p in data.products" :key="p.id" @click="move(p.id)"  class="grid grid-cols-1 gap-y-10 sm:grid-cols-2 gap-x-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+        <!-- <a v-for="product in products" :key="product.id" :href="product.href" class="group"> -->
+          <div class="w-full aspect-w-1 aspect-h-1 bg-gray-200 rounded-lg overflow-hidden xl:aspect-w-7 xl:aspect-h-8">
+            <img class="w-full h-full object-center object-cover group-hover:opacity-75" :src="'http://38.242.229.113:8055/assets/' + p.image.id + '?width=190&height=200'" alt="" />
+          </div>
+        <p class="mt-4 text-sm text-gray-700">
+          {{ p.title }}
+        </p>
+          <p class="mt-1 text-lg font-medium text-gray-900">
+            {{ p.price + "$" }}
+        </p>
+        <!-- </a> -->
+      </div>
+      </div>
   </div>
+</div>
+
+
 </template>
 
 <script>
 import { useQuery } from "@urql/vue";
 import { ref } from "@vue/reactivity";
 import { useRouter, useRoute } from 'vue-router'
+import tailwindConfig from "../../tailwind.config";
 
 export default {
   setup() {
@@ -72,7 +101,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<!-- <style scoped>
 
 .product_card{
     width: 23%;
@@ -282,4 +311,4 @@ export default {
   width: 250px; */
 }
 
-</style>
+</style> -->
