@@ -1,34 +1,28 @@
+
 <template>
   <div class="body">
-    <div class="header">
-      <h1>Product Page</h1>
-      <a href="#">♡</a>
-    </div>
-    <div class="product-card">
-      <div v-for="i in product?.data?.images" :key="i">
-        <img :src="'http://localhost:1337' + i?.url" alt="" />
-      </div>
-      <div class="card-text">
-        <p class="title">{{ product?.data?.title }}</p>
-        <p>{{ product?.data?.description }}</p>
-        <div class="price-and-cart">
-          <p class="price">{{ product?.data?.price }} USD</p>
-          <a href="#"><button class="card-text-button">add to cart</button></a>
-        </div>
-        <hr />
-        <p>Бесплатная экспресс доставка за 2 часа по Алматы и Нур-Султан</p>
-        <p>Официальная гарантия: 12 месяцев</p>
-        <p><b>Комплект поставки</b></p>
-        <p>iPhone, Документация, Кабель-переходник с USB-C на Lightning</p>
-        <hr />
-      </div>
-    </div>
     <div v-if="fetching">Loading...</div>
     <div v-else-if="error">Oh no... {{ error }}</div>
     <div v-else>
       <div v-if="data">
-        <div>
-          <p>{{ data.products_by_id }}</p>
+        <div class="card-text">
+          <div class="firstb">
+          <div class="titleee">
+          <div class="titlee">
+          <h2 class="headg">{{ data.products_by_id.title }}</h2>
+          </div>
+          <div class="pricee">
+          <p class="pprice">{{"Price "  +  data.products_by_id.price + "$" }}</p>
+          </div>
+          <button class="card-text-button">Добавить в корзину</button>
+          <div class="description">
+          <p class="ddescription">{{ data.products_by_id.description }}</p>
+          </div>
+          </div>
+          </div>
+          <div class="phoyo">
+          <img :src="'http://38.242.229.113:8055/assets/' + data.products_by_id.image.id" alt="">
+          </div>
         </div>
       </div>
     </div>
@@ -37,41 +31,71 @@
 
 <script>
 import { useQuery } from "@urql/vue";
-import { useRouter, useRoute } from "vue-router";
-
+import { useRouter, useRoute } from 'vue-router'
+import { ChakraProvider } from '@chakra-ui/react'
+import * as ReactDOM from 'react-dom/client'
+import { storeToRefs } from "pinia";
 export default {
   setup() {
-    const id = 4;
     const router = useRouter();
     const route = useRoute();
+    const colors = {
+  brand: {
+    900: '#1a365d',
+    800: '#153e75',
+    700: '#2a69ac',
+  },
+}
+
+
+
+const rootElement = document.getElementById('root')
+ReactDOM.createRoot(rootElement).render(
+  <React.StrictMode>
+    <ChakraProvider theme={theme}>
+      <App />
+    </ChakraProvider>
+  </React.StrictMode>,
+)
+
+
+
+
+const theme = extendTheme({ colors })
+const id = +route.params.id;
     const result = useQuery({
       query: `
-        query {
-          products_by_id(id: 4) {
+        query getProduct($id: ID!) {
+          products_by_id(id: $id) {
             id
             title
             price
             spec
+            description
+            image {
+              id
+            }
           }
         }
-      `,
-      variables: { id },
+      `, variables: { id }
     });
     return {
       fetching: result.fetching,
       data: result.data,
       error: result.error,
-    };
+      route
+    }
   },
 };
 </script>
 
 <style scoped>
 .body {
-  width: 1200px;
-  margin: 0 auto;
-  background-color: #fff;
+    background-color: #f6f6f6;
+    width: 1400px;
+    margin: 0 auto;
 }
+
 .header {
   display: flex;
   align-items: center;
@@ -99,14 +123,15 @@ export default {
   align-items: center;
 }
 .card-text-button {
-  padding: 10px 20px;
-  border: #ffffff solid 0px;
-  background-color: #eba69b;
-  border-radius: 4%;
-  color: #fff;
-  font-weight: 700;
-  margin: 20px 0px;
-  opacity: 0.8;
+    padding: 10px 20px;
+    border: #ffffff solid 0px;
+    background-color: #000000;
+    border-radius: 4%;
+    color: #fff;
+    font-weight: 700;
+    margin: 20px 0px;
+    opacity: 0.8;
+    width: 16%;
 }
 .card-text-button:hover {
   opacity: 1;
@@ -121,4 +146,50 @@ export default {
   color: #a18a68;
   margin-right: 15px;
 }
+
+.card-text {
+  display: flex;
+  width: 100%;
+}
+
+.titlee {
+  display: flex;
+}
+
+.titleee{
+  background-color: white;
+}
+
+.pricee {
+  display: flex;
+}
+
+.specc{
+  display: flex;
+} 
+
+.description {
+  display: flex;
+  width: 90%;
+}
+
+.pricee {
+  font-size: 30px;
+  width: 20%;
+}
+
+.ddescription {
+  font-size: 30px;
+  padding: 5px 78px 0px 0px;
+}
+
+.headg {
+  font-size: 40px;
+}
+
+.firstb {
+   background-color: #f6f6f6;
+}
+
+
 </style>

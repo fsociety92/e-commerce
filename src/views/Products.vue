@@ -1,258 +1,285 @@
 <template>
-  <div>
-    <input type="text" v-model="search" placeholder="search" />
+  <div class="body">
+    <div class="header0">
+    <div class="header">
+    <h1 class="h1h">Shop-OP</h1>
+    <div class="butspace">
+    <input type="text" v-model="search" placeholder="search"/>
     <button @click="searchProducts">search</button>
+    </div>
+    </div></div>
     <div v-if="fetching">Loading...</div>
     <div v-else-if="error">Oh no... {{ error }}</div>
-    <div v-else>
-      <div v-if="data">
-        <div
-          v-for="p in data.products"
-          :key="p.id"
-          @click="move(p.id)"
-          class="product_card"
-        >
-          <p>{{ p.title }}</p>
-          <p>{{ p.price }}</p>
+    <div class="banner">
+        
+    </div>
+    <div class="producty">
+      <div v-if="data" class="producti">
+        <div v-for="p in data.products" :key="p.id" @click="move(p.id)" class="product_card">
+          <p class="title">{{ p.title }}</p>
+          <p class="price">{{ p.price + "$" }}</p>
+          <img class="imagy" :src="'http://38.242.229.113:8055/assets/' + p.image.id + '?width=190&height=200'" alt="">
         </div>
       </div>
     </div>
-  </div>
-
-  <div class="image-box">
-    <div class="image-box-text">
-      <h1>
-        The most obvious example of a call to action is a "Buy Now" button, or a
-        "Shop Now" button on your storefront.
-      </h1>
-      <a href="#"><button class="image-box-button">BUY NOW</button></a>
-    </div>
-  </div>
-
-  <div class="sort">
-    <h1>products</h1>
-    <select name="sort" v-model="sort" @change="sortProducts($event)">
-      <option value="updatedAt:desc">newest</option>
-      <option value="price:asc">price: ascending</option>
-      <option value="price:desc">price: descending</option>
-    </select>
-  </div>
-  <div class="products-and-filters">
-    <div class="filters">
-      <h1>filters</h1>
-      <p>
-        <input
-          type="checkbox"
-          value="lidar:true"
-          @change="pushQueryToUrl({ spec: $event.target.value })"
-        /><label>lidar</label>
-      </p>
-      <p>
-        <input
-          type="checkbox"
-          value="dualsim:true"
-          @change="pushQueryToUrl({ spec: $event.targproet.value })"
-        /><label>dualsim</label>
-      </p>
-      <p>
-        <input
-          type="checkbox"
-          value="touchbar:true"
-          @change="pushQueryToUrl({ spec: $event.target.value })"
-        /><label>touchbar</label>
-      </p>
-    </div>
-    <div class="products">
-      <div
-        class="product-card"
-        v-for="p in products.data"
-        :key="p.id"
-        @click="moveProduct(p.id)"
-      >
-        <div class="product-img">
-          <div v-for="i in p.images" :key="i.id">
-            <img :src="'http://localhost:1337' + i?.url" alt="" />
-          </div>
-        </div>
-        <p>{{ p.title }}</p>
-        <p class="price">{{ p.price }} USD</p>
-      </div>
-    </div>
-  </div>
-  <div class="pages">
-    <div v-for="i in products?.meta?.pagination?.pageCount" :key="i">
-      <button @click="pushQueryToUrl({ page: i })">{{ i }}</button>
-    </div>
-  </div>
-  <div class="footer">
-    <p>find us on <a href="#">instagram</a></p>
   </div>
 </template>
 
 <script>
-import { useECommerceStore } from "@/stores/e-commerce";
 import { useQuery } from "@urql/vue";
 import { ref } from "@vue/reactivity";
-import { useRouter, useRoute } from "vue-router";
-import { storeToRefs } from "pinia";
+import { useRouter, useRoute } from 'vue-router'
 
 export default {
   setup() {
-    const { products } = storeToRefs(eCommerceStore);
-    const { categories } = storeToRefs(eCommerceStore);
-    const eCommerceStore = useECommerceStore();
     const search = ref(null);
-    const router = useRouter();
-    const sort = ref(route.query.sort || "updatedAt:desc");
-    const searchString = ref("");
-    const spec = ref();
-    let ezQuery = {};
-    const route = useRoute();
-    const result = useQuery({
-      query: `
+    const router = useRouter()
+    const route = useRoute()
+    const result = useQuery(
+      {
+        query: `
         query($search: String) {
           products(search: $search) {
             id
             title
             price
             spec
+            image {
+              id
+            }
           }
         }
-      `,
-      variables: { search },
-    });
+      `, variables: { search }
+      },
+    );
     function searchProducts() {
-      result.executeQuery();
+      result.executeQuery()
     }
 
     function move(id) {
-      router.push("/products/" + id);
+      router.push("/products/" + id)
     }
 
-    function sortProducts(event) {
-      pushQueryToUrl({ sort: event.target.value });
-    }
-
-    function pushQueryToUrl(queryParam) {
-      Object.entries(queryParam).forEach(([key, value]) => {
-        if (value) {
-          if (key == "spec") {
-            if (ezQuery[key] == undefined) {
-              ezQuery[key] = value;
-              console.log(1);
-              console.log("ezQK", ezQuery[key]);
-              console.log("eqq1", ezQuery);
-            } else {
-              ezQuery[key] = ezQuery[key].map((s) => s.join(":")) + "," + value;
-            }
-          } else {
-            ezQuery[key] = value;
-          }
-        } else {
-          ezQuery[key] = undefined;
-        }
-      });
-      console.log("qparam", queryParam);
-
-      router.push({ query: ezQuery });
-    }
-
-    async function createProductQuery() {
-      ezQuery = {
-        page: route.query.page,
-        gte: route.query.gte,
-        lte: route.query.lte,
-        sort: route.query.sort,
-        categoryId: route.query.categoryId,
-        spec: route.query.spec
-          ? route.query.spec.split(",").map((s) => s.split(":"))
-          : undefined,
-        search:
-          route.query.search != "" || route.query.search
-            ? route.query.search
-            : undefined,
-      };
-      const pagination = { page: route.query.page || 1, pageSize: 6 };
-      const populate = ["category", "images"];
-      const sort = route.query.sort ? [route.query.sort] : ["updatedAt:desc"];
-      const search =
-        route.query.search != "" && route.query.search
-          ? route.query.search
-          : undefined;
-
-  const filters = {
-        $and: [
-          {
-            price: {
-              $gte: route.query.price_gte,
-            },
-          },
-          {
-            price: {
-              $lte: route.query.price_lte,
-            },
-          },
-          {
-            category: {
-              id: {
-                $eq: route.query.categoryId || categories[0]?.id,
-              },
-            },
-          },
-          {
-            title: {
-              $containsi: search,
-            },
-          },
-        ],
-      };
-      if (ezQuery.spec) {
-        ezQuery.spec.map((s) => {
-          filters.$and.push({
-            spec: {
-              $containsi: `"${s[0]}":${s[1]}`,
-            },
-          });
-        });
-      }
-      const query = {
-        populate,
-        pagination,
-        sort,
-        filters,
-      };
-      await eCommerceStore.fetchCategories();
-      await eCommerceStore.fetchProducts(query);
-      console.log(filters);
-    }
-    watchEffect(() => {
-      createProductQuery();
-    });
-    onMounted(() => {});
-
-      return {
-        search,
-        fetching: result.fetching,
-        data: result.data,
-        products,
-        eCommerceStore,
-        pushQueryToUrl,
-        categories,
-        sort,
-        sortProducts,
-        searchString,
-        moveProduct,
-        error: result.error,
-        searchProducts,
-        move,
-      };
-    }
-  };
+    return {
+      search,
+      fetching: result.fetching,
+      data: result.data,
+      error: result.error,
+      searchProducts,
+      move
+    };
+  },
+};
 </script>
 
 <style scoped>
-.product_card {
-  border: 3px black solid;
-  margin: 1rem;
+
+.product_card{
+    width: 23%;
+    display: flex;
+    padding: 3%;
+    margin: 1%;
+    border: #00000059 solid 1px;
+    border-radius: 5%;
+    box-shadow: 0 0 10px 5px rgb(180 192 212);
+    text-align: left;
+    flex-direction: column-reverse;
+    justify-content: center;
+    align-items: stretch;
+    align-content: stretch;
+    flex-wrap: nowrap;
 }
+.product_card:hover {
+  border: #0400ff solid 1px;
+  transition: 0.5s;
+  cursor: pointer;
+}
+
+.body {
+  margin: 0;
+  padding: 0;
+  margin: 0 auto;
+  background-color: #fff;
+  }
+
+.header {
+    display: flex;
+    justify-content: space-evenly;
+    margin: 0px 20px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: stretch;
+    align-items: center;
+}
+
+.header0 {
+  background-color: rgb(20, 19, 19);
+}
+
+.h1h {
+  padding: 0px 0px 0px 0px;
+  color: white;
+}
+
+.banner {
+  height: 600px;
+  background-image: url("https://808.media/wp-content/uploads/2022/03/lcimg-919d7e33-39ad-42ac-8c83-f936e96211d7.jpg");
+  min-width: 100%;
+  background-position: center;
+  background-size: contain;
+}
+.navigation {
+  display: flex;
+  align-items: center;
+}
+.navigation li {
+  list-style-type: none;
+}
+.navigation li:hover {
+  color: #a18a68;
+  text-decoration: underline;
+}
+.navigation input {
+  margin-left: 20px;
+  padding: 5px;
+  border: #a18a68 solid 1px;
+  border-radius: 4%;
+}
+.image-box {
+  display: flex;
+  align-items: center;
+  background-image: url(http://i.yapx.ru/R7rKF.jpg);
+  background-size: cover;
+  width: 1100px;
+  height: 500px;
+  padding-left: 100px;
+  border-width: 1px 0px;
+  border-color: #a18a68;
+  border-style: solid;
+}
+.image-box-text {
+  width: 35%;
+  font-size: 15px;
+}
+.image-box-button {
+  padding: 10px 20px;
+  border: #ffffff solid 0px;
+  background-color: #eba69b;
+  border-radius: 4%;
+  color: #fff;
+  font-weight: 700;
+  margin: 20px 0px;
+  opacity: 0.8;
+}
+.image-box-button:hover {
+  opacity: 1;
+}
+.sort {
+  text-align: right;
+  margin: 20px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+.sort select {
+  padding: 5px;
+  border: #a18a68 solid 1px;
+  border-radius: 4%;
+  color: #757575;
+}
+.products-and-filters {
+  padding: 0px 60px;
+  display: flex;
+  flex-wrap: wrap;
+}
+.filters {
+  border: 1px solid #a18a68;
+  width: 15%;
+  padding: 30px;
+}
+.filters h1 {
+  font-size: 24px;
+}
+.products {
+  display: flex;
+  flex-wrap: wrap;
+  width: 79%;
+}
+.product-card {
+  width: 242px;
+  padding: 20px;
+  border: #a18a6859 solid 1px;
+}
+.product-card:hover {
+  border: #a18a68 solid 1px;
+  transition: 0.5s;
+  cursor: pointer;
+}
+.products img {
+  width: 200px;
+}
+.product-img {
+  display: flex;
+  justify-content: center;
+}
+.price {
+  color: #a18a68;
+  font-weight: 700;
+}
+.pages {
+  display: flex;
+  margin: 20px 20px;
+}
+.pages button {
+  background-color: transparent;
+  color: #a18a68;
+  font-weight: 700;
+  margin-right: 10px;
+  border: none;
+  cursor: pointer;
+}
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid #a18a6859;
+}
+.footer a {
+  color: #a18a68;
+  text-decoration: none;
+}
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* .producty {
+    width: 1600px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-content: stretch;
+    justify-content: space-between;
+    align-items: center;
+} */
+
+.producti {
+    width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-content: stretch;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.imagy {
+  margin: 7%;
+  padding: 5%;
+  /* height: 200px;
+  width: 250px; */
+}
+
 </style>
